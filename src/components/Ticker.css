@@ -1,0 +1,39 @@
+.ticker { --p: .5; position: relative; padding: 70px 0; overflow: hidden; background: var(--black); }
+
+.band {
+  position: relative; padding: 14px 0; background: var(--accent); color: #000;
+  rotate: -3deg; width: 110%; margin-left: -5%;
+  box-shadow: 0 10px 40px rgba(200, 250, 0, .15);
+}
+.band--reverse { rotate: 2.5deg; margin-top: -26px; background: var(--ink); color: var(--white); border-block: 1px solid var(--steel); box-shadow: none; }
+
+.band-track {
+  display: flex; width: max-content; will-change: transform;
+  transform: translateX(calc(-10% - var(--p) * 30% * var(--motion)));
+}
+.band--reverse .band-track { transform: translateX(calc(-40% + var(--p) * 30% * var(--motion))); }
+
+/* Where supported (Safari 26+, Chrome, Edge) the browser drives the slide itself,
+   perfectly in step with scrolling. The JavaScript version above is the fallback
+   for older browsers. */
+@supports (animation-timeline: view()) {
+  .ticker { view-timeline: --ticker block; }
+  @media (prefers-reduced-motion: no-preference) {
+    .band-track { animation: band-left linear both; animation-timeline: --ticker; }
+    .band--reverse .band-track { animation-name: band-right; }
+  }
+}
+@keyframes band-left { from { transform: translateX(-10%); } to { transform: translateX(-40%); } }
+@keyframes band-right { from { transform: translateX(-40%); } to { transform: translateX(-10%); } }
+
+.band-item {
+  display: inline-flex; align-items: center; gap: 28px; padding: 0 28px;
+  font: clamp(1.6rem, 4vw, 3rem) / 1 var(--sign); text-transform: uppercase; white-space: nowrap;
+  transition: color .3s, -webkit-text-stroke .3s;
+}
+.band-item i { font-style: normal; font-size: .5em; }
+.band--reverse .band-item i { color: var(--accent); }
+/* hover: the word you point at turns into an outline */
+.band-item:hover { color: transparent; -webkit-text-stroke: 1.5px currentColor; }
+.band .band-item:hover { -webkit-text-stroke-color: #000; }
+.band--reverse .band-item:hover { -webkit-text-stroke-color: var(--accent); }

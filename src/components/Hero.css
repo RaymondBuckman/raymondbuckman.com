@@ -1,0 +1,104 @@
+/* --p: 0 → 1 as the hero scrolls away.  --mx/--my: mouse position, -1 → 1 */
+.hero {
+  --p: 0; --mx: 0; --my: 0;
+  position: relative; height: 100svh; min-height: 560px; overflow: hidden;
+  display: grid; place-items: center; isolation: isolate; background: var(--black);
+}
+
+/* Layer 1 — the platform photo: sinks slowly, zooms and brightens as you leave */
+.hero-photo {
+  position: absolute; inset: -6%; z-index: -4;
+  background: url(/images/subway.jpg) 80% 60% / cover no-repeat;
+  transform:
+    translate3d(calc(var(--mx) * -18px), calc(var(--my) * -12px + var(--p) * 30% * var(--motion)), 0)
+    scale(calc(1.06 + var(--p) * .3 * var(--motion)));
+  filter: brightness(calc(.55 + var(--p) * .8)) contrast(1.15);
+  transition: transform .6s var(--ease);
+  animation: hero-in 2.4s var(--ease) backwards;
+}
+@keyframes hero-in { from { opacity: 0; scale: 1.15; } }
+
+/* Layer 2 — a giant outlined word drifting sideways behind the name */
+.hero-ghost {
+  position: absolute; z-index: -3; top: 50%; left: 50%;
+  font: clamp(8rem, 30vw, 28rem) / .8 var(--sign); text-transform: uppercase; white-space: nowrap;
+  color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .14);
+  transform: translate(calc(-50% + var(--mx) * 30px - var(--p) * 40% * var(--motion)), calc(-50% + var(--my) * 20px));
+  transition: transform .8s var(--ease);
+}
+
+/* Layer 3 — a train's headlight streak sweeping across every few seconds */
+.hero-streak {
+  position: absolute; z-index: -2; left: 0; right: 0; top: 63%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent) 45%, #fff 50%, transparent 55%) no-repeat;
+  background-size: 50% 100%;
+  filter: drop-shadow(0 0 8px var(--accent));
+  animation: streak 7s cubic-bezier(.6, 0, .4, 1) 1.5s infinite;
+  opacity: .8;
+}
+@keyframes streak {
+  0% { background-position: -100% 0; }
+  30%, 100% { background-position: 250% 0; }
+}
+
+.hero-vignette {
+  position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, .7) 100%),
+    linear-gradient(transparent 60%, var(--black));
+}
+
+/* Layer 4 — the name: rises faster than the photo and fades out */
+.hero-title {
+  text-align: center; padding: 0 var(--gutter);
+  transform: translate3d(calc(var(--mx) * 14px), calc(var(--my) * 10px - var(--p) * 40vh * var(--motion)), 0);
+  opacity: calc(1 - var(--p) * 1.8);
+  transition: transform .5s var(--ease);
+}
+.hero h1 {
+  font-size: clamp(3.6rem, 13vw, 12rem); line-height: 1.05; padding: .08em 0;
+  display: flex; flex-wrap: wrap; justify-content: center; column-gap: .25em;
+}
+.hero-word { display: inline-flex; }
+.hero-letter {
+  display: inline-block;
+  /* Sedgwick's descenders (the tail of "y") reach well below what the font file
+     declares, so the browser can crop them. Extra invisible padding makes each
+     letter's box tall enough to hold the whole glyph; the negative margin
+     cancels it out so the layout doesn't move. */
+  padding-block: .3em; margin-block: -.3em;
+  animation: letter-in 1s var(--ease) backwards; animation-delay: calc(.6s + var(--i) * 45ms);
+  transition: transform .35s var(--ease), color .25s, text-shadow .25s;
+}
+.hero-letter:hover {
+  transform: translateY(-.12em) rotate(-8deg) scale(1.1);
+  color: var(--accent); text-shadow: 0 0 30px rgba(200, 250, 0, .6);
+}
+@keyframes letter-in { from { opacity: 0; transform: translateY(.6em) rotate(8deg); filter: blur(8px); } }
+
+
+/* Layer 5 — the bottom bar */
+.hero-foot {
+  position: absolute; left: 0; right: 0; bottom: 28px; padding: 0 var(--gutter);
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 16px;
+  opacity: calc(1 - var(--p) * 3);
+  animation: fade-in 1s ease 1.6s backwards;
+}
+@keyframes fade-in { from { opacity: 0; } }
+.hero-roles { justify-self: end; text-align: right; display: grid; }
+.hero-scroll { display: grid; justify-items: center; gap: 10px; }
+.hero-scroll-line { width: 1px; height: 56px; background: rgba(255, 255, 255, .25); position: relative; overflow: hidden; }
+.hero-scroll-line::after {
+  content: ''; position: absolute; inset: 0; background: var(--accent);
+  animation: drip 1.8s var(--ease) infinite;
+}
+@keyframes drip { from { translate: 0 -100%; } to { translate: 0 100%; } }
+.hero-scroll:hover .label { color: var(--accent); }
+
+@media (max-width: 600px) {
+  .hero-foot { grid-template-columns: 1fr 1fr; }
+  .hero-scroll { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-streak, .hero-scroll-line::after { animation: none; }
+}

@@ -1,0 +1,110 @@
+.resume {
+  --p: .5;
+  position: relative; overflow: hidden; padding: 18vh 0 16vh;
+}
+/* fade the brick wall in and out of the black sections around it */
+.resume::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(var(--black), transparent 18%, transparent 82%, var(--black));
+}
+
+/* giant outlined word sliding sideways behind the grid */
+.resume-ghost {
+  position: absolute; top: 9vh; left: 0; white-space: nowrap; pointer-events: none;
+  font: clamp(8rem, 22vw, 22rem) / 1 var(--sign); text-transform: uppercase;
+  color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .07);
+  transform: translateX(calc(10% - var(--p) * 45% * var(--motion)));
+}
+
+.resume .section-head { position: relative; margin-bottom: 48px; }
+
+/* ---------- The grid ----------
+   Each tile names its slot with `area`. Rearrange the strings to rearrange the grid. */
+.bento {
+  position: relative; max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter);
+  display: grid; gap: 16px;
+  grid-template-columns: 1fr;
+  grid-template-areas: 'edu' 'rc' 'lang' 'work' 'skills' 'learn' 'vol' 'me';
+}
+@media (min-width: 680px) {
+  .bento {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      'edu    edu'
+      'rc     lang'
+      'rc     work'
+      'skills vol'
+      'learn  learn'
+      'me     me';
+  }
+}
+@media (min-width: 1040px) {
+  .bento {
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-areas:
+      'edu  edu  edu  edu  edu  edu  edu  rc   rc   rc   rc   rc'
+      'edu  edu  edu  edu  edu  edu  edu  rc   rc   rc   rc   rc'
+      'lang lang lang lang work work work work skills skills skills skills'
+      'learn learn learn learn learn learn learn learn learn learn learn learn'
+      'vol  vol  vol  vol  vol  vol  vol  me   me   me   me   me';
+  }
+}
+
+/* ---------- Senior project: drone photos ----------
+   Each photo drifts at its own speed; hovering one widens it (accordion). */
+.drones { display: flex; gap: 8px; height: 220px; }
+.drone {
+  --d: 0;
+  flex: 1; overflow: hidden; border-radius: 14px; position: relative;
+  transition: flex .6s var(--ease);
+  translate: 0 calc((var(--p) - .5) * (var(--d) - 1) * 60px * var(--motion));
+}
+.drone img {
+  width: 100%; height: 100%; object-fit: cover; scale: 1.2;
+  filter: grayscale(1) contrast(1.1); transition: filter .5s, scale .8s var(--ease);
+}
+.drone::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  box-shadow: inset 0 0 0 2px var(--accent); opacity: 0; transition: opacity .4s;
+}
+.drones:hover .drone { flex: .7; }
+.drones .drone:hover { flex: 2.4; }
+.drone:hover img { filter: grayscale(0) contrast(1.15); scale: 1; }
+.drone:hover::after { opacity: 1; }
+
+/* ---------- "Say hi" tile ---------- */
+.me { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.me-badge { position: relative; width: 132px; height: 132px; flex: none; }
+.me-badge img {
+  position: absolute; inset: 22px; width: 88px; height: 88px; border-radius: 50%; object-fit: cover;
+  filter: grayscale(1); transition: filter .5s, scale .5s var(--ease);
+}
+.me-ring { position: absolute; inset: 0; animation: spin 14s linear infinite; transition: scale .5s var(--ease); }
+.me-ring text { font: 400 9.1px var(--mono); letter-spacing: .14em; fill: var(--white); transition: fill .3s; }
+.me-badge:hover img { filter: grayscale(0); scale: 1.08; }
+.me-badge:hover .me-ring { scale: 1.08; }
+.me-badge:hover .me-ring text { fill: var(--accent); }
+@keyframes spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .me-ring { animation: none; } }
+
+.me-links { display: grid; gap: 4px; flex: 1; min-width: 180px; }
+.me-links a {
+  display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px;
+  font: clamp(1.3rem, 2.4vw, 1.8rem) var(--sign); text-transform: uppercase;
+  transition: background .3s, translate .4s var(--ease);
+}
+.me-links a:hover { background: rgba(255, 255, 255, .06); translate: 6px 0; }
+.me-links img { width: 30px; height: 30px; }
+.muted { color: var(--fog); }
+
+/* ---------- Certifications: compact two-column list in the Education tile ---------- */
+.list--certs { gap: 2px; }
+.list--certs li { padding: 6px 12px; }
+.list--certs strong { font-size: .88rem; }
+.list--certs span { font-size: .78rem; }
+@media (min-width: 680px) { .list--certs { grid-template-columns: 1fr 1fr; column-gap: 8px; } }
+
+/* "Still Learning" tile: coursework beside certifications on wide screens */
+.learn { display: grid; gap: 24px; }
+.learn .label { margin-bottom: 10px; }
+@media (min-width: 1040px) { .learn { grid-template-columns: 1fr 2fr; } }

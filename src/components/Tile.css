@@ -1,0 +1,74 @@
+/* --p: scroll progress (0 → 1)   --x/--y: cursor in %   --mx/--my: cursor -1 → 1 */
+.tile {
+  --p: .5; --mx: 0; --my: 0; --x: 50%; --y: 50%;
+  position: relative; isolation: isolate; overflow: hidden;
+  display: flex; flex-direction: column; gap: 18px;
+  min-height: 260px; padding: 24px; border-radius: var(--radius);
+  background: var(--ink); border: 1px solid var(--line);
+  transform: perspective(1000px) rotateX(calc(var(--my) * -5deg)) rotateY(calc(var(--mx) * 6deg));
+  transition: transform .5s var(--ease), border-color .4s, box-shadow .5s;
+}
+.tile:hover { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .9), 0 0 0 1px rgba(200, 250, 0, .08); }
+
+/* spotlight that follows the cursor */
+.tile::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(420px circle at var(--x) var(--y), rgba(200, 250, 0, .12), transparent 45%);
+  opacity: 0; transition: opacity .4s;
+}
+/* glowing border that follows the cursor */
+.tile::after {
+  content: ''; position: absolute; inset: 0; padding: 1px; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(300px circle at var(--x) var(--y), var(--accent), transparent 60%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity .4s;
+}
+.tile:hover::before, .tile:hover::after { opacity: 1; }
+
+/* ---------- Photo ---------- */
+.tile-photo {
+  position: relative; z-index: -2; overflow: hidden;
+  margin: -24px -24px 0; height: 210px;
+  -webkit-mask: linear-gradient(#000 55%, transparent); mask: linear-gradient(#000 55%, transparent);
+}
+.tile--cover .tile-photo { position: absolute; inset: 0; margin: 0; height: auto; -webkit-mask: none; mask: none; }
+.tile--cover .tile-photo::after { /* darken so text reads */
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(160deg, rgba(10, 10, 10, .35), rgba(10, 10, 10, .92) 70%);
+  transition: opacity .5s;
+}
+.tile--cover:hover .tile-photo::after { opacity: .75; }
+
+.tile-img {
+  position: absolute; inset: -18%; background-size: cover; background-repeat: no-repeat;
+  filter: grayscale(1) brightness(.75) contrast(1.15);
+  transition: filter .6s, scale .9s var(--ease);
+}
+.tile:hover .tile-img { filter: grayscale(1) brightness(1) contrast(1.25); scale: 1.08; }
+
+/* Varied scroll motion — one per tile */
+.tile[data-fx='pan'] .tile-img { transform: translateX(calc((var(--p) - .5) * 26% * var(--motion))); }
+.tile[data-fx='pan-reverse'] .tile-img { transform: translateX(calc((var(--p) - .5) * -26% * var(--motion))); }
+.tile[data-fx='rise'] .tile-img { transform: translateY(calc((var(--p) - .5) * -30% * var(--motion))); }
+.tile[data-fx='zoom-in'] .tile-img { transform: scale(calc(1 + var(--p) * .45 * var(--motion))); }
+.tile[data-fx='zoom-out'] .tile-img { transform: scale(calc(1.45 - var(--p) * .45 * var(--motion))); }
+.tile[data-fx='turn'] .tile-img { transform: rotate(calc((var(--p) - .5) * 10deg * var(--motion))) scale(1.15); }
+
+/* ---------- Text ---------- */
+.tile-head { display: grid; gap: 6px; }
+.tile-icon { width: 38px; height: 38px; margin-bottom: 6px; transition: rotate .5s var(--ease), scale .5s var(--ease); }
+.tile:hover .tile-icon { rotate: -12deg; scale: 1.15; }
+.tile-title { font-size: clamp(2.4rem, 4.5vw, 3.6rem); transition: color .3s, translate .5s var(--ease); }
+.tile:hover .tile-title { color: var(--accent); translate: 4px 0; }
+.tile-body { flex: 1; display: grid; gap: 16px; align-content: start; }
+.tile--cover .tile-head { margin-top: auto; }
+.tile--cover .tile-body { flex: none; }
+
+.tile-arrow {
+  position: absolute; top: 18px; right: 18px; width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 1.1rem;
+  border: 1px solid var(--line); background: rgba(10, 10, 10, .4);
+  transition: background .4s, color .4s, rotate .5s var(--ease), border-color .4s;
+}
+.tile:hover .tile-arrow { background: var(--accent); color: #000; border-color: var(--accent); rotate: 45deg; }

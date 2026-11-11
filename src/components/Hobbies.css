@@ -1,0 +1,89 @@
+/* --p: 0 → 1 while pinned.  --shift: how far the strip must travel (set by JS) */
+.hobbies { --p: 0; --shift: 0px; position: relative; height: 400vh; background: var(--black); }
+.hobbies-sticky {
+  position: sticky; top: 0; height: 100svh; overflow: hidden;
+  display: grid; grid-template-rows: auto 1fr; grid-template-columns: minmax(0, 1fr); padding-top: 96px;
+}
+
+.hobbies-head {
+  max-width: 1240px; width: 100%; margin: 0 auto; padding: 0 var(--gutter);
+  display: grid; gap: 18px;
+}
+/* The break-dancer photo seen through giant letters; the photo slides as you scroll */
+.hobbies-sign {
+  font: clamp(3.6rem, 13vw, 11rem) / .9 var(--sign); text-transform: uppercase; letter-spacing: -.01em;
+  background: url(/images/break-dancer.jpg) no-repeat;
+  background-size: 140% auto;
+  background-position: calc(var(--p) * 100%) 55%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, .55); /* keeps letters readable over dark parts of the photo */
+  filter: contrast(1.1) brightness(1.7);
+  transition: filter .4s;
+}
+.hobbies-sign:hover { filter: contrast(1.3) brightness(1.6) drop-shadow(0 0 30px rgba(200, 250, 0, .25)); }
+
+.hobbies-meter { height: 2px; background: var(--steel); max-width: 360px; }
+.hobbies-meter span { display: block; height: 100%; background: var(--accent); transform-origin: left; transform: scaleX(var(--p)); }
+
+.hobbies-track {
+  list-style: none; margin: 0; padding: 4vh var(--gutter) 6vh;
+  display: flex; gap: clamp(12px, 2vw, 24px); align-items: center; width: max-content;
+  transform: translateX(calc(var(--p) * var(--shift) * -1));
+}
+
+.hobby {
+  --i: 0;
+  position: relative; flex: none;
+  width: clamp(170px, 22vw, 300px); aspect-ratio: 3 / 4;
+  border-radius: 18px; overflow: hidden; background: var(--ink);
+  /* alternate cards ride high/low and tilt opposite ways as the strip moves */
+  translate: 0 calc(mod(var(--i), 2) * 48px - 24px);
+  rotate: calc((var(--p) - .5) * (mod(var(--i), 2) * 2 - 1) * 5deg * var(--motion));
+  transition: translate .5s var(--ease), opacity .4s, filter .4s;
+}
+.hobby-img { position: absolute; inset: 0; overflow: hidden; }
+.hobby-img img {
+  width: 140%; max-width: none; height: 100%; object-fit: cover;
+  /* depth: the photo pans inside its card the opposite way to the strip */
+  transform: translateX(calc(-28% + var(--p) * 28% * var(--motion)));
+  filter: grayscale(1) contrast(1.1) brightness(.8);
+  transition: filter .5s, scale .8s var(--ease);
+}
+.hobby::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(transparent 50%, rgba(0, 0, 0, .85));
+  box-shadow: inset 0 0 0 0 var(--accent); transition: box-shadow .4s var(--ease);
+}
+.hobby-num {
+  position: absolute; z-index: 1; top: 14px; left: 14px;
+  font: .8rem var(--mono); letter-spacing: .15em; color: var(--fog); transition: color .3s;
+}
+.hobby-label {
+  position: absolute; z-index: 1; left: 14px; right: 14px; bottom: 14px;
+  font: clamp(1.2rem, 2vw, 1.7rem) / 1 var(--sign); text-transform: uppercase;
+  transition: translate .5s var(--ease), color .3s;
+}
+
+/* logos and graphics stay centred in their card instead of panning sideways */
+.hobby--centered .hobby-img img { width: 100%; transform: none; }
+
+/* hover: the card you point at lifts and goes full colour; the others dim */
+.hobbies-track:hover .hobby { opacity: .45; filter: blur(1px); }
+.hobbies-track .hobby:hover { opacity: 1; filter: none; translate: 0 calc(mod(var(--i), 2) * 48px - 40px); }
+.hobby:hover .hobby-img img { filter: grayscale(0) contrast(1.05); scale: 1.08; }
+.hobby:hover::after { box-shadow: inset 0 0 0 3px var(--accent); }
+.hobby:hover .hobby-num { color: var(--accent); }
+.hobby:hover .hobby-label { translate: 0 -6px; color: var(--accent); }
+
+@media (max-width: 600px) {
+  .hobby { width: 46vw; }
+  .hobbies-sticky { padding-top: 84px; }
+}
+
+/* No scroll motion: a normal swipeable row instead of the pinned gallery */
+@media (prefers-reduced-motion: reduce) {
+  .hobbies { height: auto; }
+  .hobbies-sticky { position: relative; height: auto; padding-bottom: 48px; }
+  .hobbies-track { width: auto; overflow-x: auto; scroll-snap-type: x mandatory; transform: none; }
+  .hobby { scroll-snap-align: start; translate: none; rotate: none; }
+}

@@ -1,0 +1,57 @@
+.nav {
+  position: fixed; z-index: 60; top: 14px; left: 50%;
+  width: min(1240px, calc(100% - 24px)); translate: -50% 0;
+  display: flex; align-items: center; gap: 14px; padding: 8px 8px 8px 10px;
+  border-radius: 999px; overflow: hidden;
+  background: rgba(14, 14, 14, .55); border: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4);
+  transition: translate .5s var(--ease);
+}
+.nav.is-hidden { translate: -50% calc(-100% - 24px); }
+
+.nav-menu {
+  width: 42px; height: 42px; border: 0; border-radius: 50%; cursor: pointer; flex: none;
+  background: rgba(255, 255, 255, .07);
+  display: grid; place-content: center; gap: 6px;
+  transition: background .3s, rotate .5s var(--ease);
+}
+.nav-menu span { width: 18px; height: 2px; background: var(--white); border-radius: 2px; transition: width .35s var(--ease), background .3s; }
+.nav-menu span:last-child { width: 11px; }
+.nav-menu:hover { background: var(--accent); rotate: 90deg; }
+.nav-menu:hover span { background: #000; width: 18px; }
+
+.nav-mark { font-size: 1.9rem; transition: color .3s, letter-spacing .4s var(--ease); }
+.nav-mark:hover { color: var(--accent); letter-spacing: .12em; }
+
+.nav-links { list-style: none; margin: 0 0 0 auto; padding: 0; display: none; gap: 2px; }
+.nav-links a {
+  display: flex; align-items: baseline; gap: 6px; padding: 8px 14px; border-radius: 999px;
+  font-size: .85rem; color: var(--fog); transition: color .3s, background .3s;
+}
+.nav-links a:hover { color: var(--white); }
+.nav-num { font: .75rem var(--mono); opacity: .75; }
+.nav-links a[aria-current='true'] { color: var(--white); background: rgba(255, 255, 255, .08); }
+.nav-links a[aria-current='true'] .nav-num { color: var(--accent); opacity: 1; }
+
+.nav-cta {
+  margin-left: auto; padding: 10px 18px; border-radius: 999px; flex: none;
+  background: var(--accent); color: #000; font: 600 .85rem var(--body);
+  transition: background .3s, scale .3s var(--ease);
+}
+.nav-cta .roll::after { color: #000; }
+.nav-cta:hover { background: var(--white); scale: 1.05; }
+
+@media (min-width: 820px) {
+  .nav-links { display: flex; }
+  .nav-cta { margin-left: 8px; }
+}
+
+/* reading-progress line (CSS scroll-driven animation; simply absent in older browsers) */
+.nav-progress {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  background: var(--accent); transform-origin: left; transform: scaleX(0);
+}
+@supports (animation-timeline: scroll()) {
+  .nav-progress { animation: progress linear both; animation-timeline: scroll(root); }
+}
+@keyframes progress { to { transform: scaleX(1); } }

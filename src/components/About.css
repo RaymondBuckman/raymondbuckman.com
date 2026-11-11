@@ -1,0 +1,61 @@
+/* --p: 0 → 1 while the sticky screen is pinned.
+   --open: the photo window opening (first ~40% of the scroll)
+   --show: the card appearing (from ~45% on) */
+.about {
+  --p: 0;
+  --open: clamp(0, calc(var(--p) * 2.4), 1);
+  --show: clamp(0, calc((var(--p) - .42) * 3), 1);
+  position: relative; height: 300vh; background: var(--black);
+}
+.about-sticky { position: sticky; top: 0; height: 100svh; overflow: hidden; display: grid; place-items: center; }
+
+.about-frame {
+  position: absolute; inset: 0;
+  clip-path: inset(calc((1 - var(--open)) * 22%) calc((1 - var(--open)) * 30%) round calc((1 - var(--open)) * 48px));
+}
+.about-photo {
+  position: absolute; inset: -5%;
+  background: url(/images/city-1.jpg) 55% 30% / cover no-repeat;
+  transform: scale(calc(1.5 - var(--open) * .5)) translateY(calc(var(--p) * -5%));
+  filter: brightness(calc(.9 - var(--show) * .45)) contrast(1.1);
+}
+
+.about-hello {
+  position: relative; pointer-events: none;
+  font: clamp(6rem, 24vw, 22rem) / .8 var(--sign); text-transform: uppercase; letter-spacing: -.01em;
+  color: var(--white); text-shadow: 0 10px 60px rgba(0, 0, 0, .6);
+  /* flies toward you and off-screen as the window opens, fading only at the very end */
+  transform: scale(calc(1 + var(--open) * var(--open) * 6));
+  opacity: clamp(0, calc((1 - var(--open)) * 4), 1);
+}
+
+.about-card {
+  --mx: 0; --my: 0;
+  position: absolute; left: var(--gutter); right: var(--gutter); bottom: max(32px, 6vh);
+  max-width: 720px; padding: clamp(24px, 4vw, 48px); border-radius: var(--radius);
+  background: rgba(12, 12, 12, .6); border: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px);
+  opacity: var(--show);
+  translate: 0 calc((1 - var(--show)) * 120px);
+  transform: perspective(900px) rotateX(calc(var(--my) * -4deg)) rotateY(calc(var(--mx) * 5deg));
+  transition: transform .5s var(--ease), border-color .4s;
+  display: grid; gap: 14px;
+}
+.about-card:hover { border-color: rgba(200, 250, 0, .4); }
+.about-card h2 { font-size: clamp(3rem, 8vw, 5.5rem); color: var(--accent); }
+.about-text { font-size: clamp(1.05rem, 1.8vw, 1.25rem); max-width: 60ch; }
+
+.about-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 8px 0 0; }
+.about-facts div { padding-top: 12px; border-top: 1px solid var(--line); transition: border-color .3s; }
+.about-facts div:hover { border-color: var(--accent); }
+.about-facts dd { margin: 4px 0 0; font-weight: 600; }
+
+@media (min-width: 900px) { .about-card { left: auto; right: max(var(--gutter), calc((100% - 1240px) / 2)); } }
+
+/* No scroll motion: show everything plainly */
+@media (prefers-reduced-motion: reduce) {
+  .about { height: auto; --open: 1; --show: 1; }
+  .about-sticky { position: relative; height: auto; min-height: 100svh; }
+  .about-hello { display: none; }
+  .about-card { position: relative; margin: 40vh var(--gutter) 40px; left: auto; right: auto; bottom: auto; }
+}

@@ -1,0 +1,28 @@
+/* No blend modes here on purpose: blending a white ring over the acid-green
+   accent produces purple. A thin dark outline keeps the ring visible on any
+   background instead. */
+.cursor {
+  position: fixed; z-index: 200; top: 0; left: 0;
+  width: 36px; height: 36px; margin: -18px 0 0 -18px;
+  border: 1.5px solid rgba(255, 255, 255, .85); border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .45), inset 0 0 0 1px rgba(0, 0, 0, .45);
+  pointer-events: none;
+  opacity: 0; transition: opacity .3s, width .35s var(--ease), height .35s var(--ease), margin .35s var(--ease), border-color .35s, background .35s;
+}
+.cursor.is-on { opacity: 1; }
+
+/* over anything clickable: the ring grows and turns accent green, with a faint green fill */
+.cursor.is-hot {
+  width: 64px; height: 64px; margin: -32px 0 0 -32px;
+  border-color: var(--accent); background: rgba(200, 250, 0, .08);
+}
+
+/* the little word ("Go", "Fly", "Top"…) sits in a dark tag just under the ring */
+.cursor::after {
+  content: attr(data-label);
+  position: absolute; top: calc(100% + 8px); left: 50%; translate: -50% 0;
+  padding: 3px 8px; border-radius: 999px; background: rgba(10, 10, 10, .85);
+  font: 700 .75rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
+  white-space: nowrap; opacity: 0; transition: opacity .25s;
+}
+.cursor.is-hot[data-label]:not([data-label=''])::after { opacity: 1; }
